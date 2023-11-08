@@ -1,2 +1,2 @@
 # mhdele
-school Server
+school Server - open source learning platform 
