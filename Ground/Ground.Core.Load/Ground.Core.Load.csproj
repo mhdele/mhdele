@@ -7,16 +7,8 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Ground.Core.Left\Ground.Core.Left.csproj" />
-      <ProjectReference Include="..\Ground.Core.Load\Ground.Core.Load.csproj" />
-      <ProjectReference Include="..\Ground.Core.Right\Ground.Core.Right.csproj" />
       <ProjectReference Include="..\Ground.Share.Lib\Ground.Share.Lib.csproj" />
       <ProjectReference Include="..\Ground.Share.Plugin\Ground.Share.Plugin.csproj" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />
-      <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     </ItemGroup>
 
 </Project>
