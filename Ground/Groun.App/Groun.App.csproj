@@ -7,9 +7,19 @@
         <OutputType>Exe</OutputType>
         <AssemblyName>Ground.App</AssemblyName>
         <RootNamespace>Ground.App</RootNamespace>
+
+        <TieredCompilation>false</TieredCompilation>
+        <TieredCompilationQuickJit>false</TieredCompilationQuickJit>
+        <TieredCompilationQuickJitForLoops>false</TieredCompilationQuickJitForLoops>
+        <TieredPGO>false</TieredPGO>
+        <ThreadPoolMinThreads>8</ThreadPoolMinThreads>
+        <PreserveCompilationContext>false</PreserveCompilationContext>
     </PropertyGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\..\Plugin\Mdele.Plugin.Default.Email\Mdele.Plugin.Default.Email.csproj" />
+      <ProjectReference Include="..\..\Plugin\Mdele.Plugin.Default.GrpcHandling\Mdele.Plugin.Default.GrpcHandling.csproj" />
+      <ProjectReference Include="..\..\Plugin\Mdele.Plugin.Default.WebHandling\Mdele.Plugin.Default.WebHandling.csproj" />
       <ProjectReference Include="..\Ground.Share.Lib\Ground.Share.Lib.csproj" />
     </ItemGroup>
 

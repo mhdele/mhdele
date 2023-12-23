@@ -7,6 +7,9 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <ProjectReference Include="..\..\Ground.Share.Kernel\Ground.Share.Kernel.csproj" />
+        <ProjectReference Include="..\Ground.Share.Env\Ground.Share.Env.csproj" />
+        <ProjectReference Include="..\Ground.Share.Store\Ground.Share.Store.csproj" />
         <ProjectReference Include="..\Ground.Share.Utils\Ground.Share.Utils.csproj" />
     </ItemGroup>
 
@@ -17,6 +20,7 @@
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
+        <PackageReference Include="Generator.Equals" Version="3.0.0" />
         <PackageReference Include="NetEscapades.EnumGenerators" Version="1.0.0-beta08" />
         <PackageReference Include="NLog" Version="5.2.6" />
         <PackageReference Include="NLog.Database" Version="5.2.6" />
@@ -26,6 +30,10 @@
         <PackageReference Include="SixLabors.ImageSharp" Version="3.0.2" />
         <PackageReference Include="ToString.Fody" Version="1.11.1" />
         <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Left\" />
     </ItemGroup>
 
 </Project>

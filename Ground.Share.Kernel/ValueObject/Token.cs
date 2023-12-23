@@ -1,14 +1,19 @@
+using Generator.Equals;
+
 namespace Ground.Share.Kernel.ValueObject;
 
+[Equatable]
 [ToString]
-public class Token: Model.ValueObject {
+public partial class Token: Model.ValueObject {
     public string Value { get; private set; }
 
     public Token(string value) {
         Value = value;
     }
-
-    internal override IEnumerable<object> GetEquality() {
+    
+    public override IEnumerator<object> GetEnumerator() {
         yield return Value;
     }
+
+    public override object Clone() => new Token(Value);
 }

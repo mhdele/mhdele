@@ -7,7 +7,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Ground.Core.Reload\Ground.Core.Reload.csproj" />
+      <ProjectReference Include="..\Ground.Core.Load\Ground.Core.Load.csproj" />
       <ProjectReference Include="..\Ground.Mail\Ground.Mail.csproj" />
       <ProjectReference Include="..\Ground.Mapper\Ground.Mapper.csproj" />
       <ProjectReference Include="..\Ground.Poco\Ground.Poco.csproj" />
