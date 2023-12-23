@@ -1,0 +1,17 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Ground.Core.Mediator\Ground.Core.Mediator.csproj" />
+      <ProjectReference Include="..\Ground.Core.Reload\Ground.Core.Reload.csproj" />
+      <ProjectReference Include="..\Ground.Grpc\Ground.Grpc.csproj" />
+      <ProjectReference Include="..\Ground.Share.Lib\Ground.Share.Lib.csproj" />
+      <ProjectReference Include="..\Ground.Web\Ground.Web.csproj" />
+    </ItemGroup>
+
+</Project>

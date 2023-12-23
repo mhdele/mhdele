@@ -1,0 +1,22 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Ground.Core.Reload\Ground.Core.Reload.csproj" />
+      <ProjectReference Include="..\Ground.Mail\Ground.Mail.csproj" />
+      <ProjectReference Include="..\Ground.Mapper\Ground.Mapper.csproj" />
+      <ProjectReference Include="..\Ground.Poco\Ground.Poco.csproj" />
+      <ProjectReference Include="..\Ground.Repository\Ground.Repository.csproj" />
+      <ProjectReference Include="..\Ground.Share.Lib\Ground.Share.Lib.csproj" />
+      <ProjectReference Include="..\Ground.Share.Plugin\Ground.Share.Plugin.csproj" />
+      <ProjectReference Include="..\Ground.Store.Db\Ground.Store.Db.csproj" />
+      <ProjectReference Include="..\Ground.Store.FileStore\Ground.Store.FileStore.csproj" />
+      <ProjectReference Include="..\Ground.Store\Ground.Store.csproj" />
+    </ItemGroup>
+
+</Project>
