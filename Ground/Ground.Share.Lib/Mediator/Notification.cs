@@ -4,14 +4,8 @@ using LamLibAllOver;
 namespace Ground.Share.Lib.Mediator;
 
 public abstract class Notification<TInput>: MediatorTask {
-    public Guid LineId { get; }
-    public GlobalEnv Env { get; }
-    public Ground.Share.Store.Store Store { get; }
-
-    protected Notification(Guid lineId, GlobalEnv env, Store.Store store) {
-        LineId = lineId;
-        Env = env;
-        Store = store;
+    public Notification(Guid lineId, GlobalEnv env, Store.Store store, Mediator mediator) 
+        : base(lineId, env, store, mediator) {
     }
     
     public abstract Task<SResultErr> HandleAsync(TInput prop);

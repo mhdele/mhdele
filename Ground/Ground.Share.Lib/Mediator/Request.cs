@@ -4,16 +4,9 @@ using LamLibAllOver;
 namespace Ground.Share.Lib.Mediator;
 
 public abstract class Request<TInput, TOutput>: MediatorTask, IRequestHint {
-    public Guid LineId { get; }
-    public GlobalEnv Env { get; }
-    public Ground.Share.Store.Store Store { get; }
-    
-    public Request(Guid lineId, GlobalEnv env, Store.Store store) {
-        LineId = lineId;
-        Env = env;
-        Store = store;
+    public Request(Guid lineId, GlobalEnv env, Store.Store store, Mediator mediator) : base(lineId, env, store, mediator) {
     }
-
+    
     public abstract Task<SResult<TOutput>> HandleAsync(TInput prop);
 
     public override async Task<IEResult> HandleAsync(object prop) {
