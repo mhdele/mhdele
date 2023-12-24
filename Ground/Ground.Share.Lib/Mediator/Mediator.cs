@@ -54,13 +54,13 @@ public sealed class Mediator {
     }
     
     public void OverwriteRequests(ImmutableDictionary<Type, IReadOnlyList<Type>> requests) 
-        => this._mediatorSingleRequest.OverwriteMediatorTasks(requests);
+        => this._mediatorSingleRequest.OverwriteHandlers(requests);
 
     public void OverwriteNotifications(ImmutableDictionary<Type, IReadOnlyList<Type>> notifications)
-        => this._mediatorSingleNotification.OverwriteMediatorTasks(notifications);
+        => this._mediatorSingleNotification.OverwriteHandlers(notifications);
 
-    public async Task<SResult<TOutput>> RequestFirstAsync<TInput, TOutput>(TInput prop) {
-        IEResult ier = await this._mediatorSingleRequest.MediatorTaskFirstAsync(prop);
+    public async Task<SResult<TOutput>> RequestFirstAsync<TInput, TOutput>(IRequest<TInput, TOutput> prop) {
+        IEResult ier = await this._mediatorSingleRequest.CallHandlerFirstAsync(prop);
         if (ier is SResultErr @err) {
             if (err == EResult.Err) {
                 return err.ConvertTo<TOutput>();
@@ -68,15 +68,15 @@ public sealed class Mediator {
             return SResult<TOutput>.Err(TraceMsg.WithMessage("IEResult Has False Type; Must be SResult<TOutput>"));
         }
 
-        if (ier is SResult<TOutput> @result) {
-            return @result;
+        if (ier is SResult<TOutput> result) {
+            return result;
         }
         
         return SResult<TOutput>.Err(TraceMsg.WithMessage("IEResult Has False Type; Must be SResult<TOutput>"));
     }
     
-    public async Task<Option<SResult<TOutput>>> RequestFirstOrDefaultAsync<TInput, TOutput>(TInput prop) {
-        Option<IEResult> ierOption = await this._mediatorSingleRequest.MediatorTaskFirstOrDefaultAsync(prop);
+    public async Task<Option<SResult<TOutput>>> RequestFirstOrDefaultAsync<TInput, TOutput>(IRequest<TInput, TOutput> prop) {
+        Option<IEResult> ierOption = await this._mediatorSingleRequest.CallHandlerFirstOrDefaultAsync(prop);
 
         return ierOption.Map((ier) => {
             if (ier is SResultErr @err) {
@@ -94,8 +94,8 @@ public sealed class Mediator {
         });
     }
     
-    public async Task<SResultErr> NotificationFirstAsync<TInput, TOutput>(TInput prop) {
-        var ier = await this._mediatorSingleNotification.MediatorTaskFirstAsync(prop);
+    public async Task<SResultErr> NotificationFirstAsync<TInput>(INotification<TInput> prop) {
+        var ier = await this._mediatorSingleNotification.CallHandlerFirstAsync(prop);
         if (ier is SResultErr @err) {
             return @err;
         }
@@ -103,12 +103,12 @@ public sealed class Mediator {
         return SResultErr.Err(TraceMsg.WithMessage("IEResult Has False Type; Must be SResultErr"));
     } 
     
-    public async Task<Option<SResultErr>> NotificationFirstOrDefaultAsync<TInput, TOutput>(TInput prop) {
-        return (await _mediatorSingleRequest
-                .MediatorTaskFirstOrDefaultAsync(prop))
-            .Map(ier => ier switch {
-                SResultErr @err => @err,
-                _ => SResultErr.Err(TraceMsg.WithMessage("IEResult Has False Type; Must be SResultErr"))
-            });
+    public async Task<Option<SResultErr>> NotificationFirstOrDefaultAsync<TInput>(INotification<TInput> prop) {
+        var callHandler = (await _mediatorSingleNotification.CallHandlerFirstOrDefaultAsync(prop));
+        if (callHandler.IsNotSet()) return Option<SResultErr>.Empty;
+        return Option<SResultErr>.With(callHandler.Unwrap() switch {
+            SResultErr @err => @err,
+            _ => SResultErr.Err(TraceMsg.WithMessage("IEResult Has False Type; Must be SResultErr"))
+        });
     } 
 }

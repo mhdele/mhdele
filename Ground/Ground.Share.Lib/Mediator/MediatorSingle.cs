@@ -21,33 +21,35 @@ internal class MediatorSingle: ICloneable {
         _constructorObjectArrBuilder = constructorObjectArrBuilder;
     }
 
-    public async Task<Option<IEResult>> MediatorTaskFirstOrDefaultAsync<TInput>(TInput prop) {
-        if (_mediatorTaskDic.TryGetValue(typeof(TInput), out var list) && list.Count != 0) {
-            return Option<IEResult>.With(
-                await CreateMediatorTask(list[0]).MapAsync(x => CallMediatorTaskAsync(prop, x))
-                );
+    public async Task<Option<IEResult>> CallHandlerFirstOrDefaultAsync<TInput>(TInput prop) where TInput: IHint {
+        if (_mediatorTaskDic.TryGetValue(prop.GetType(), out var list) && list.Count != 0) {
+            var handlerTask = CreateHandlerTask(list[0]);
+            if (handlerTask == EResult.Err) return Option<IEResult>.With(handlerTask);
+            return Option<IEResult>.With(await InvokeHandlerAsync(prop, handlerTask.Ok()));
         }   
         
         return Option<IEResult>.Empty;
     } 
     
-    public async Task<IEResult> MediatorTaskFirstAsync<TInput>(TInput prop) {
-        if (_mediatorTaskDic.TryGetValue(typeof(TInput), out var list) && list.Count != 0) {
-            return await CreateMediatorTask(list[0]).MapAsync(x => CallMediatorTaskAsync(prop, x));
+    public async Task<IEResult> CallHandlerFirstAsync<TInput>(TInput prop) where TInput: IHint {
+        if (_mediatorTaskDic.TryGetValue(prop.GetType(), out var list) && list.Count != 0) {
+            var handlerTask = CreateHandlerTask(list[0]);
+            if (handlerTask == EResult.Err) return handlerTask;
+            return await InvokeHandlerAsync(prop, handlerTask.Ok());
         }   
         
-        return SResult<MediatorTask>.Err(TraceMsg.WithMessage("Mediator Find No Task"));
+        return SResult<MediatorHandler>.Err(TraceMsg.WithMessage("Mediator Find No Task"));
     }
     
-    public async Task<List<IEResult>> MediatorTaskAsync<TInput>(TInput prop) {
-        if (!_mediatorTaskDic.TryGetValue(typeof(TInput), out var list) || list.Count == 0) {
+    public async Task<List<IEResult>> CallHandlersAsync<TInput>(TInput prop) where TInput: IHint {
+        if (!_mediatorTaskDic.TryGetValue(prop.GetType(), out var list) || list.Count == 0) {
             return [];
         }
 
         List<IEResult> returnList = new(list.Count);
 
         foreach (var type in list) {
-            var ieResult = await CreateMediatorTask(type).MapAsync(x => CallMediatorTaskAsync(prop, x));
+            var ieResult = await CreateHandlerTask(type).MapAsync(x => InvokeHandlerAsync(prop, x));
             returnList.Add(ieResult);
             if (ieResult == EResult.Err) {
                 return returnList;
@@ -71,37 +73,38 @@ internal class MediatorSingle: ICloneable {
 
     public void Clear() => _mediatorTaskDic = ImmutableDictionary<Type, IReadOnlyList<Type>>.Empty;
 
-    public void OverwriteMediatorTasks(ImmutableDictionary<Type, IReadOnlyList<Type>> mediatorTasks) {
+    public void OverwriteHandlers(ImmutableDictionary<Type, IReadOnlyList<Type>> mediatorTasks) {
         _mediatorTaskDic = mediatorTasks;
     }
     
-    private async Task<IEResult> CallMediatorTaskAsync<TInput>(
+    private async Task<IEResult> InvokeHandlerAsync<TInput>(
         TInput prop, 
-        MediatorTask task) {
+        MediatorHandler handler) where TInput: IHint {
         
         try {
             if (prop is null) {
                 return SResultErr.Err(TraceMsg.WithMessage("prop is null"));
             }
-            return await task.HandleAsync(prop);
+            var ieResult = await handler.HandleAsync(prop);
+            return ieResult;
         }
         catch (Exception e) {
             return SResultErr.Err(e);
         }
     }
 
-    public SResult<MediatorTask> CreateMediatorTask(Type type) {
+    public SResult<MediatorHandler> CreateHandlerTask(Type type) {
         try {
             var ctor = type.GetConstructor(_constructorTypes);
             if (ctor is null) {
-                return SResult<MediatorTask>.Err(TraceMsg.WithMessage("ConstructorInfo is null"));
+                return SResult<MediatorHandler>.Err(TraceMsg.WithMessage("ConstructorInfo is null"));
             }
 
-            var task = (MediatorTask)ctor.Invoke(_constructorObjectArrBuilder());
-            return SResult<MediatorTask>.Ok(task);
+            var task = (MediatorHandler)ctor.Invoke(_constructorObjectArrBuilder());
+            return SResult<MediatorHandler>.Ok(task);
         }
         catch (Exception e) {
-            return SResult<MediatorTask>.Err(e);
+            return SResult<MediatorHandler>.Err(e);
         }  
     }
 

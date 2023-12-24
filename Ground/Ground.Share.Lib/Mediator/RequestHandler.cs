@@ -3,8 +3,8 @@ using LamLibAllOver;
 
 namespace Ground.Share.Lib.Mediator;
 
-public abstract class Request<TInput, TOutput>: MediatorTask, IRequestHint {
-    public Request(Guid lineId, GlobalEnv env, Store.Store store, Mediator mediator) : base(lineId, env, store, mediator) {
+public abstract class RequestHandler<TInput, TOutput>: MediatorHandler where TInput: IRequest<TInput, TOutput> {
+    public RequestHandler(Guid lineId, GlobalEnv env, Store.Store store, Mediator mediator) : base(lineId, env, store, mediator) {
     }
     
     public abstract Task<SResult<TOutput>> HandleAsync(TInput prop);
@@ -14,6 +14,6 @@ public abstract class Request<TInput, TOutput>: MediatorTask, IRequestHint {
             return SResult<TOutput>.Err(TraceMsg.WithMessage($"prop has false Type. It Must Be {typeof(TInput)}"));
         }
 
-        return await HandleAsync(prop);
+        return await HandleAsync((TInput)prop);
     }
 }
