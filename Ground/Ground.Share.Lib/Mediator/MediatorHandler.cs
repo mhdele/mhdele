@@ -4,17 +4,16 @@ using LamLibAllOver;
 namespace Ground.Share.Lib.Mediator;
 
 public abstract class MediatorHandler {
-    protected Guid LineId { get; }
-    protected GlobalEnv Env { get; }
-    protected Ground.Share.Store.Store Store { get; }
-    protected Mediator Mediator { get; }
+    private readonly MediatorProxy _mediatorProxy;
+    protected IMediator Mediator => _mediatorProxy;
+    protected Guid SessionId => _mediatorProxy.SessionId;
+    protected GlobalEnv Env => _mediatorProxy.Env;
+    protected Ground.Share.Store.Store Store => _mediatorProxy.Store;
+    
 
-    protected MediatorHandler(Guid lineId, GlobalEnv env, Store.Store store, Mediator mediator) {
-        LineId = lineId;
-        Env = env;
-        Store = store;
-        Mediator = mediator;
+    protected MediatorHandler(MediatorProxy mediator) {
+        _mediatorProxy = mediator;
     }
 
-    public abstract Task<IEResult> HandleAsync(object prop);    
+    public abstract Task<IEResult> HandleAsObjectAsync(object prop);    
 }
