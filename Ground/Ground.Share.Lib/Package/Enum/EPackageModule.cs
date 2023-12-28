@@ -7,11 +7,11 @@ public enum EPackageModule {
     InternalStore = 4,
     InternalEmail = 5,
     
-    PluginEnv = 101,
-    PluginStore = 102,
-    PluginEmail = 103,
-    PluginAuth = 104,
-    PluginSession = 105,
-    PluginFrontend = 106,
-    PluginElse = 107,
+    ExternEnv = 101,
+    ExternStore = 102,
+    ExternEmail = 103,
+    ExternAuth = 104,
+    ExternSession = 105,
+    ExternFrontend = 106,
+    ExternElse = 107,
 }
