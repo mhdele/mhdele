@@ -6,7 +6,7 @@ using LamLibAllOver;
 namespace Ground.Share.Lib.Package;
 
 [AttributeUsage(AttributeTargets.Method)]
-public class AttributePackageBundleBuild: Attribute {
+public class AttributePackageBundleBuilder: Attribute {
     private readonly Type _classType;
     private readonly string _methodName;
     
@@ -47,7 +47,7 @@ public class AttributePackageBundleBuild: Attribute {
         }
     }
 
-    public AttributePackageBundleBuild(Type classType, string methodName) {
+    public AttributePackageBundleBuilder(Type classType, string methodName) {
         _classType = classType;
         _methodName = methodName;
     }
