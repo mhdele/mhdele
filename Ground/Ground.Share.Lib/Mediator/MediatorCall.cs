@@ -1,3 +1,4 @@
+using Ground.Share.Lib.Mediator.Interface;
 using LamLibAllOver;
 
 namespace Ground.Share.Lib.Mediator;
@@ -56,7 +57,9 @@ public partial class Mediator : IMediator {
         }
     }
     
-    public async Task<SResultErr> NotificationFirstAsync<TInput>(INotification<TInput> prop) {
+    public async Task<SResultErr> NotificationFirstAsync<TInput>(TInput prop) 
+        where TInput: INotification<TInput> {
+        
         try {
             SResult<Type> typeResult = this._mediatorDictionaryHolderNotification.GetTypeHandlerFirst(prop);
             if (typeResult == EResult.Err) return typeResult;
@@ -67,11 +70,10 @@ public partial class Mediator : IMediator {
         catch (Exception e) {
             return SResultErr.Err(e);
         }
-
-        return SResultErr.Err(TraceMsg.WithMessage("IEResult Has False Type; Must be SResultErr"));
     }
 
-    public async Task<Option<SResultErr>> NotificationFirstOrDefaultAsync<TInput>(INotification<TInput> prop) {
+    public async Task<Option<SResultErr>> NotificationFirstOrDefaultAsync<TInput>(TInput prop) 
+        where TInput: INotification<TInput> {
         try {
             var callType = _mediatorDictionaryHolderNotification.CallHandlerFirstOrDefaultAsync(prop);
             return callType.IsNotSet()
@@ -83,9 +85,10 @@ public partial class Mediator : IMediator {
         }
     }
     
-    public async Task<SResultErr> NotificationsAsync<TInput>(INotification<TInput> prop) {
+    public async Task<SResultErr> NotificationsAsync<TInput>(TInput prop) 
+        where TInput: INotification<TInput> {
         try {
-            var callTypes = _mediatorDictionaryHolderNotification.GetTypeHandlers(prop);
+            SResult<List<Type>> callTypes = _mediatorDictionaryHolderNotification.GetTypeHandlers(prop);
             if (callTypes == EResult.Err) return callTypes;
 
             foreach (var type in callTypes.Ok()) {
@@ -99,22 +102,20 @@ public partial class Mediator : IMediator {
         }
     }
 
-    private async Task<SResultErr> AddNotificationToQueueAsync<TInput>(Type type, INotification<TInput> prop) {
+    private async Task<SResultErr> AddNotificationToQueueAsync<TInput>(Type type, TInput prop)
+        where TInput: INotification<TInput> {
         try {
-            if (typeof(NotificationHandler<INotification<TInput>>) != type) {
-                return SResultErr.Err(TraceMsg.WithMessage(
-                    $"Type Has False Type: Must Be {typeof(NotificationHandler<INotification<TInput>>)}"));
+            var mediator = await this.NewSessionAsync();
+            var mediatorProxy = new MediatorProxy(mediator);
+            var handlerResult = CreateHandler(mediatorProxy, type);
+            if (handlerResult == EResult.Err) {
+                return handlerResult;
             }
-
-            Mediator mediator = await this.NewSessionAsync();
-            MediatorProxy mediatorProxy = new MediatorProxy(mediator);
+            var handler = (NotificationHandler<TInput>)handlerResult.Ok();
+            
             this._triggerAfterDisposable.Add(async () => {
                 await using (mediator) {
                     try {
-                        var handlerResult = CreateHandler(mediatorProxy, type);
-                        if (handlerResult == EResult.Err) return handlerResult;
-
-                        var handler = handlerResult.Ok();
                         var handlerResultValue = (SResultErr)await handler.HandleAsObjectAsync(prop);
 
                         return handlerResultValue;
@@ -135,13 +136,11 @@ public partial class Mediator : IMediator {
     private async Task<SResult<TOutput>> ExecuteRequestAsync<TInput, TOutput>(
         Type type,
         IRequest<TInput, TOutput> prop)
-        where TInput : IRequest<TInput, TOutput> {
+        where TInput: IRequest<TInput, TOutput> {
         try {
-            if (!RightType<TInput, TOutput>(type, out var resultErr)) return resultErr.ConvertTo<TOutput>();
-
             var handlerResult = CreateHandler(new MediatorProxy(this), type);
             if (handlerResult == EResult.Err) return handlerResult.ChangeOkType<TOutput>();
-
+                
             var handler = (RequestHandler<TInput, TOutput>)handlerResult.Ok();
             var handlerResultValue = await handler.HandleAsync((TInput)prop);
             return handlerResultValue;
@@ -149,19 +148,6 @@ public partial class Mediator : IMediator {
         catch (Exception e) {
             return SResult<TOutput>.Err(e);
         }
-    }
-
-    private static bool RightType<TInput, TOutput>(Type type, out SResultErr resultErr)
-        where TInput : IRequest<TInput, TOutput> {
-        if (type != typeof(RequestHandler<TInput, TOutput>)) {
-            resultErr = SResultErr.Err(
-                TraceMsg.WithMessage($"Type Has False Type Must Be {typeof(RequestHandler<TInput, TOutput>)}")
-            );
-            return false;
-        }
-
-        resultErr = SResultErr.Ok();
-        return true;
     }
 
     private SResult<MediatorHandler> CreateHandler(MediatorProxy proxy, Type type) {
